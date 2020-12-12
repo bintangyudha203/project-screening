@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-161530831-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+
+        gtag('js', new Date());
+
+        gtag('config', 'UA-161530831-1');
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta charset="UTF-8">
+    <meta property="og:title" content="ScreenCovid.com Online COVID-19 Screening">
+    <meta property="og:site_name" content="ScreenCovid.com">
+    <meta property="og:url" content="https://screencovid.com">
+    <meta property="og:description" content="Assess your risk for COVID-19 with this screening tool that quizzes your symptoms.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://screencovid.com/images/covid19.jpg">
+    <title>ScreenCovid.com | Online COVID-19 Screening</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.4/jquery.mobile-1.4.4.min.css">
+    <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script src="https://code.jquery.com/mobile/1.4.4/jquery.mobile-1.4.4.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/3.1.0/mustache.min.js"
+            integrity="sha256-MPgtcamIpCPKRRm1ppJHkvtNBAuE71xcOM+MmQytXi8=" crossorigin="anonymous"></script>
+    <script src="gettext.iife.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="css/languages.css"/>
+
+    <style>
+      html {
+        box-sizing: border-box;
+      }
+
+      *, *:before, *:after {
+        box-sizing: inherit;
+      }
+
+      .app {
+        padding: 10px;
+      }
+
+        .symptomdescr {
+            font-weight: bold;
+            COLOR: #000;
+            /*padding: 8px;*/
+            padding: 8px 0 14px 0;
+            margin: auto;
+            max-width: 500px;
+        }
+
+        .info {
+            display: none;
+        }
+
+        #container {
+            width: 100%;
+            margin: auto !important;
+            display: block;
+            height: 480px;
+            position: relative;
+            list-style-type: none;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            /*padding: 5px;*/
+        }
+
+        .buddy {
+            text-align: center;
+            display: none;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            color: #000;
+            width: -webkit-fill-available;
+            padding: 10px;
+            /* margin-left: 10px; */
+            margin: 10px auto;
+            height: auto;
+            max-width: 375px;
+            /* top: 50px; */
+            /* left: 50px; */
+            position: absolute;
+            left: 0;
+            right: 0;
+            cursor: hand;
+        }
+
+        .results {
+            text-align: center;
+            display: none;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            color: #000;
+            width: -webkit-fill-available;
+            padding: 10px;
+            /* margin-left: 10px; */
+            margin: 10px auto;
+            height: auto;
+            max-width: 375px;
+            /* top: 50px; */
+            /* left: 50px; */
+            position: absolute;
+            left: 0;
+            right: 0;
+            cursor: hand;
+            font-size: 1.5em;
+        }
+
+        .rotate-left {
+            transform: rotate(30deg) scale(0.8);
+            transition: 1s;
+            /*margin-left: 400px;*/
+            cursor: e-resize;
+            opacity: 0;
+            z-index: 10;
+        }
+
+        .rotate-right {
+            transform: rotate(-30deg) scale(0.8);
+            transition: 1s;
+            opacity: 0;
+            /*margin-left: -400px;*/
+            cursor: w-resize;
+            z-index: 10;
+        }
+
+        .avatar {
+            background: rgb(236, 240, 245);;
+            width: -webkit-fill-available;
+            height: 340px;
+            display: block;
+            /*margin-top: 10px;*/
+            margin-left: 5px;
+            margin-right: 5px;
+            margin-bottom: 10px;
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .like {
+            border-radius: 5px;
+            padding: 5px 10px;
+            border: 2px solid green;
+            color: green;
+            text-transform: uppercase;
+            font-size: 15px;
+            position: absolute;
+            top: 50px;
+            right: 40px;
+            text-shadow: none;
+        }
+
+        .dislike {
+            border-radius: 5px;
+            padding: 5px 10px;
+            border: 2px solid red;
+            color: red;
+            text-transform: uppercase;
+            font-size: 15px;
+            position: absolute;
+            top: 50px;
+            left: 40px;
+            text-shadow: none;
+        }
+
+        #total {
+            /*margin: auto !important;*/
+            /* position: fixed; /* or absolute */
+            text-align: center;
+            font-size: 2em;
+        }
+
+        #totaldescr {
+            text-align: center;
+            /* font-size: 1.3em; */
+            max-width: 500px;
+            margin: auto;
+        }
+
+        #instructions {
+            text-align: center;
+
+            padding-top: 25px;
+            font-size: 1.3em;
+        }
+
+        #footer {
+            border-top: solid 1px #ccc;
+            margin-top: 20px;
+            text-align: center;
+            padding: 10px;
+            font-size: 0.875em;
+        }
+
+        .ui-button {
+          padding-top: 10px;
+          padding-bottom: 10px;
+        }
+
+        .button-yes {
+            width: 100%;
+            display: inline-block;
+        }
+
+        .button-no {
+            width: 100%;
+            display: inline-block;
+        }
+
+        .button-outer {
+            width: 100%;
+            text-align: center;
+        }
+
+        .button-inner {
+            width: 48%;
+            display: inline-block;
+        }
+
+        .checklist-label {
+            text-align: center !important;
+            max-width: 375px !important;
+            margin: 0 auto !important;
+        }
+
+        .vertical-center {
+            margin: 0;
+            position: absolute;
+            top: 50% !important;
+            -ms-transform: translateY(-50%);
+            transform: translateY(-50%);
+        }
+
+        .side-panel-btn {
+            margin: 0 0 0 10px !important;
+            border-width: 0;
+            background-color: transparent !important;
+        }
+
+        .side-panel-btn:hover {
+            background-color: #3a84af !important;
+        }
+
+        .side-panel-btn:active {
+            background-color: #34779e !important;
+        }
+
+        #menu-icon {
+            fill: #fff;
+        }
+
+        .ui-panel-inner {
+            padding: 0;
+        }
+
+        .ui-collapsible-content {
+            padding: 0;
+        }
+
+        .ui-page-theme-a a {
+            font-weight: 400;
+        }
+
+        .ui-collapsible-heading .ui-btn {
+            text-align: center;
+        }
+
+        .slide-panel-header {
+            text-align: center;
+            padding: 0 15px 0 15px;
+        }
+
+        .ui-panel-inner .ui-btn {
+            margin: -1px 0;
+        }
+
+        #virus-img {
+            display: block;
+            margin: auto;
+            border: 3px solid #3c8dbc;
+            border-radius: 25px;
+        }
+    </style>
+</head>
+
+<body>
+<div data-role="page">
+    <script id="covid19-template" type="text/html">
+        <div class="buddy" value="{{value}}" id="{{id}}">
+            <div class="symptomdescr">{{question}}</div>
+            <div class="avatar" style="display: block; background-image: url({{image_url}}); background-size: "></div>
+            <div class="button-outer">
+                <div class="button-inner">
+                    <button class="ui-button ui-widget ui-corner-all button-no" id="no-button">{{no}}</button>
+                </div>
+                <div class="button-inner">
+                    <button id="yes-button" class="ui-button ui-widget ui-corner-all button-yes">{{yes}}</button>
+                </div>
+            </div>
+        </div>
+    </script>
+
+    <script>
+        var i18n = window.i18n({});
+
+        // default values MUST MATCH EXACTLY the values in the `list_of_questions`.
+        // I used Google Translate for 'es'.
+        // To add a new translation:
+        // - add a new entry for each question with a key that corresponds to the language.
+        // - make sure the language key is the one you tell people to use in the URL
+        // e.g. ?lang=fr or ?lang=es.
+        TRANSLATIONS =
+            [
+                {
+                    'default': 'yes',
+                    'fr': 'oui',
+                    'es': 'sí',
+                    'hu': 'igen',
+                    'pl': 'tak',
+                    'kr': '예',
+                    'de': 'Ja',
+                    'vi': 'Có',
+                },
+                {
+                    'default': 'no',
+                    'fr': 'non',
+                    'es': 'no',
+                    'hu': 'nem',
+                    'pl': 'nie',
+                    'kr': '아니오',
+                    'de': 'Nein',
+                    'vi': 'Không',
+                },
+                {
+                    'default': 'Your score is below the threshold for COVID-19 pre-screening. However, if you have Difficulty Breathing, Chest Pain, Pressure, or Irregular Heartbeat, Bluish Lips, or Confusion, you should seek medical attention immediately.',
+                    'fr': 'Votre score est inférieur au seuil de présélection du COVID-19. Cependant, si vous avez des difficultés respiratoires, une douleur thoracique, une pression ou un rythme cardiaque irrégulier, des lèvres bleutées ou une confusion, vous devez consulter immédiatement un médecin.',
+                    'es': 'Su puntaje está por debajo del umbral para la detección previa de COVID-19. Sin embargo, si tiene dificultad para respirar, dolor en el pecho, presión o latidos cardíacos irregulares, labios azulados o confusión, debe buscar atención médica de inmediato.',
+                    'hu': 'Az Ön pontszáma azt jelzi, hogy azonnal forduljon orvoshoz.',
+                    'pl': 'Twój wynik jest poniżej progu wstępnego badania COVID-19. Jeśli jednak masz trudności z oddychaniem, ból w klatce piersiowej, ucisk lub nieregularne bicie serca, niebieskawe usta lub splątanie, natychmiast skontaktuj się z lekarzem.',
+                    'kr': '점수가 COVID-19 사전 선별 기준점 미만입니다. 그러나 호흡 곤란, 흉통, 압박 또는 불규칙한 심장 박동, 푸른 입술 또는 혼동이있는 경우 즉시 의사의 진료를 받아야합니다.',
+                    'de': 'Ihre Punktzahl liegt unter dem Schwellenwert für das COVID-19-Vorscreening. Wenn Sie jedoch Atembeschwerden, Brustschmerzen, Druck oder unregelmäßigen Herzschlag, bläuliche Lippen oder Verwirrtheit haben, sollten Sie sofort einen Arzt aufsuchen.',
+                    'vi': 'Điểm của bạn dưới ngưỡng sàng lọc trước COVID-19. Tuy nhiên, nếu bạn khó thở, đau ngực, áp lực hoặc nhịp tim không đều, môi hơi xanh hoặc nhầm lẫn, bạn nên đi khám ngay lập tức.',
+                },
+                {
+                    'default': 'Your score indicates that you should consult a doctor immediately.',
+                    'fr': 'Votre score indique que vous devez consulter immédiatement un médecin.',
+                    'es': 'Su puntaje indica que debe consultar a un médico de inmediato.',
+                    'hu': 'Pontszámod nem éri el a COVID-19 előszűrés küszöbértékét. Ha azonban nehéz légzés, mellkasi fájdalom, nyomás vagy szabálytalan szívverés, kékes ajkak vagy zavart van, akkor azonnal forduljon orvoshoz.',
+                    'pl': 'Twój wynik wskazuje, że należy natychmiast skonsultować się z lekarzem.',
+                    'kr': '결과는 즉시 의사와 상담해야한다는 것을 나타냅니다.',
+                    'de': 'Ihre Ergebnisse zeigen, dass Sie sofort einen Arzt konsultieren sollten.',
+                    'vi': 'Kết quả của bạn chỉ ra rằng bạn nên tham khảo ý kiến ​​bác sĩ ngay lập tức.',
+                },
+                {
+                    'default': 'Fever above 37.8C/100F in armpit or forehead?',
+                    'fr': 'Fièvre supérieure à 37.8C/100F sous le bras ou sur le front',
+                    'es': '¿Fiebre por encima de 37.8C / 100F en la axila o la frente?',
+                    'hu': '37.8C feletti láz?',
+                    'pl': 'Gorączka powyżej 37,8 ° C / 100 ° w pachach lub czole',
+                    'kr': '겨드랑이나 이마에서 재었을 때 37.8도 이상의 고열',
+                    'de': 'Fieber über 37,8 °C in Achselhöhle oder Stirn',
+                    'vi': 'Sốt hơn 37.8oC khi đo dưới nách hay trên trán',
+                },
+                {
+                    'default': 'Dry cough?',
+                    'fr': 'Toux sèche ?',
+                    'es': '¿Tos Seca?',
+                    'hu': 'Száraz köhögés?',
+                    'pl': 'Suchy kaszel',
+                    'kr': '마른 기침',
+                    'de': 'Trockener Husten',
+                    'vi': 'Ho khan',
+                },
+                {
+                    'default': 'Fatigue (feeling extra tired)?',
+                    'fr': 'Fatigue ?',
+                    'es': '¿ Fatiga ?',
+                    'hu': 'Fáradtság (extra fáradtság)?',
+                    'pl': 'Zmęczenie (dodatkowe zmęczenie)',
+                    'kr': '피로',
+                    'de': 'Müdigkeit (extra müde fühlen)',
+                    'vi': 'Đuối sức (cảm giác rất mệt mỏi)',
+                },
+                {
+                    'default': 'No appetite?',
+                    'fr': 'Pas d\'apétit ?',
+                    'es': '¿ Sin apetito?',
+                    'hu': 'Étvágytalanság?',
+                    'pl': 'Utrata apetytu',
+                    'kr': '식욕 잃음',
+                    'de': 'Verlust von Appetit',
+                    'vi': 'Không muốn ăn (chán ăn)',
+                },
+                {
+                    'default': 'Breathing difficulty?',
+                    'fr': 'Difficultés à respirer ?',
+                    'es': '¿ Dificultad respiratoria ?',
+                    'hu': 'Légzési nehézség?',
+                    'pl': 'Trudności w oddychaniu (duszność)',
+                    'kr': '호흡 곤란',
+                    'de': 'Atembeschwerden (Kurzatmigkeit)',
+                    'vi': 'Khó thở',
+                },
+                {
+                    'default': 'Sputum (spitting or coughing lung mucus)?',
+                    'fr': 'Expectorations',
+                    'es': '¿ Esputo ?',
+                    'hu': 'Köpetürítés / váladékos köhögés?',
+                    'pl': 'Plwocina (plucie lub kaszel śluz płucny)',
+                    'kr': '가래',
+                    'de': 'Sputum (Lungenschleim spucken oder husten)',
+                    'vi': 'Đàm (ho có đàm)',
+                },
+                {
+                    'default': 'Muscle or bone pain?',
+                    'fr': 'Douleur musculaire ou osseuse ?',
+                    'es': '¿ Dolor muscular o óseo ?',
+                    'hu': 'Izom- vagy csontfájdalom?',
+                    'pl': 'Ból mięśni lub kości',
+                    'kr': '근육통 또는 뼈의 통증',
+                    'de': 'Muskel- oder Knochenschmerzen',
+                    'vi': 'Đau cơ bắp hay đau trong xương',
+                },
+                {
+                    'default': 'Sore throat?',
+                    'fr': 'Gorge irritée ?',
+                    'es': '¿ Dolor de garganta ?',
+                    'hu': 'Torokfájás?',
+                    'pl': 'Ból gardła',
+                    'kr': '인후염 (목이 따가움)',
+                    'de': 'Halsentzündung',
+                    'vi': 'Đau cổ họng',
+                },
+                {
+                    'default': 'Headache or dizziness?',
+                    'fr': 'Maux de tête ou vertiges ?',
+                    'es': '¿ Dolor de cabeza o mareos?',
+                    'hu': 'Fejfájás vagy szédülés?',
+                    'pl': 'Ból głowy lub zawroty głowy',
+                    'kr': '두통 또는 어지러움',
+                    'de': 'Kopfschmerzen oder Schwindel',
+                    'vi': 'Nhức đầu hay chóng mặt',
+                },
+                {
+                    'default': 'Loss of consciousness(fainting)?',
+                    'fr': 'Confusion ?',
+                    'es': '¿ Confusión ?',
+                    'hu': 'Zavartság?',
+                    'pl': 'Dezorientacje',
+                    'kr': '혼동',
+                    'de': 'Verwechslung',
+                    'vi': 'Ngất xỉu',
+                },
+                {
+                    'default': 'Chills (cold or shivering)?',
+                    'fr': 'Frissons ?',
+                    'es': '¿ Resfriado ?',
+                    'hu': 'Hidegrázás?',
+                    'pl': 'Dreszcze (zimno lub dreszcze)',
+                    'kr': '오한 (추움)',
+                    'de': 'Schüttelfrost (kalt oder zitternd)',
+                    'vi': 'Bị ớn lạnh (cảm giác lạnh hay rùng mình)',
+                },
+                {
+                    'default': 'Nausea or vomiting or diarrhea?',
+                    'fr': 'Nausées ou vomissements ou diarrhée ?',
+                    'es': '¿ Náuseas o vómitos o diarrea ?',
+                    'hu': 'Hányinger/hányás vagy hasmenés?',
+                    'pl': 'Nudności lub wymioty lub biegunka',
+                    'kr': '메스꺼움 또는 구토 또는 설사',
+                    'de': 'Übelkeit oder Erbrechen oder Durchfall',
+                    'vi': 'Buồn nôn, ối hay tiêu chảy',
+                },
+                {
+                    'default': 'Chronic disease?',
+                    'fr': 'Maladie chronique ?',
+                    'es': '¿ Enfermedad crónica ?',
+                    'hu': 'Krónikus betegség?',
+                    'pl': 'Przewlekła choroba',
+                    'kr': '심장질환이나 폐질환등의 지병이 있는 경우',
+                    'de': 'Chronische Erkrankung',
+                    'vi': 'Bạn có bệnh mãng tính (ví dụ như tiểu đường, cao máu, tim mạch, bệnh phổi ...)',
+                },
+                {
+                    'default': 'Chest pain or chest pressure or irregular heartbeat?',
+                    'fr': 'Douleur thoracique ou pression thoracique ou rythme cardiaque irrégulier ?',
+                    'es': '¿ Dolor en el pecho o presión en el pecho o latidos cardíacos irregulares ?',
+                    'hu': 'Mellkasi fájdalom vagy mellkasi nyomás vagy szabálytalan szívverés?',
+                    'pl': 'Ból w klatce piersiowej lub ucisk w klatce piersiowej lub nieregularne bicie serca',
+                    'kr': '가슴의 통증 또는 가슴이 답답함 또는 불규칙적인 심장 박동',
+                    'de': 'Brustschmerzen oder Brustdruck oder unregelmäßiger Herzschlag',
+                    'vi': 'Đau tim hay cảm giác áp lực vùng ngực hay tim đập lộn nhịp',
+                },
+                {
+                    'default': 'Bluish lips or face?',
+                    'fr': 'Lèvres ou visage bleutés ?',
+                    'es': '¿ Labios o cara azulados ?',
+                    'hu': 'Kékes ajkak vagy az arc?',
+                    'pl': 'Niebieskawe usta lub twarz',
+                    'kr': '창백해진 입술이나 얼굴',
+                    'de': 'Bläuliche Lippen oder Gesicht',
+                    'vi': 'Mặt hay môi bị tím',
+                },
+                {
+                    'default': 'Loss of smell or taste?',
+                    'fr': 'perte d\'odeur ou de goût ?',
+                    'es': '¿ pérdida de olfato o sabor ?',
+                    'hu': 'szag vagy íz elvesztése?',
+                    'pl': 'utrata zapachu lub smaku',
+                    'kr': '후각 또는 미각을 잃음',
+                    'de': 'Geruchs- oder Geschmacksverlust',
+                    'vi': 'Mất khả năng ngửi mùi hoặc nếm mùi',
+                },
+                {
+                    'default': 'Older than 50 or younger than 5?',
+                    'fr': 'Plus de 60 ans ou moins de 5 ans?',
+                    'es': '¿ Mayor de 50 años o menor de 5 ?',
+                    'hu': 'Idősebb mint 50 vagy fiatalabb mint 5?',
+                    'pl': 'Starsze niż 50 lub młodsze niż 5 (z poważnymi chorobami podstawowymi)',
+                    'kr': '50세 이상 또는 5살 이하',
+                    'de': 'Älter als 50 oder jünger als 5',
+                    'vi': 'Bạn trên 50 tuổi hay nhỏ hơn 5 tuổi',
+                }
+            ]
+
+        // 'es': '¿ ?',
+        LANGUAGES = ['fr', 'es', 'hu', 'pl', 'kr','de','vi' ];
+
+        LANGUAGES.forEach(language => {
+            var data = {};
+            TRANSLATIONS.forEach(item => {
+                if (language in item) {
+                    data[item['default']] = item[language];
+                }
+            });
+            //console.log(data);
+            i18n.setMessages('messages', language, data, 'nplurals=2; plural=n>1;');
+        });
+
+
+        const getQueryParams = (params, url, default_value) => {
+            let href = url;
+            //this expression is to get the query strings
+            let reg = new RegExp('[?&]' + params + '=([^&#]*)', 'i');
+            let queryString = reg.exec(href);
+            return queryString ? queryString[1] : default_value;
+        }; // source: https://dev.to/ganeshmani/how-to-get-query-string-parameters-in-javascript-2019-4dm2 .
+
+        // We extract the language; 'en' is the default one.
+        var lang = getQueryParams('lang', window.location, 'en');
+        //console.log(lang)
+
+        if (LANGUAGES.indexOf(lang) === -1) { // if the language in the lang query is not one that we support (not found in LANGUAGES array)
+            lang = 'en';   
+        } 
+        //console.log(lang)
+        i18n.setLocale(lang); // We set language for the UI.
+
+        function findGetParameter(parameterName) {
+            var result = null,
+                tmp = [];
+            location.search
+                .substr(1)
+                .split("&")
+                .forEach(function (item) {
+                tmp = item.split("=");
+                if (tmp[0] === parameterName) result = decodeURIComponent(tmp[1]);
+                });
+            return result;
+        }
+        //console.log( window.navigator.language.slice(0, 2));
+     
+        //if the url did not specify a language with the lang? in the query, then check the browsers default langage and see if that is one of the languages we have in the LANGUAGES array
+        if (findGetParameter('lang') == null && window.navigator.language.slice(0, 2) !== 'en' ) {
+            lang = window.navigator.language.slice(0, 2);
+            if (LANGUAGES.indexOf(lang) != -1) {
+                i18n.setLocale(window.navigator.language.slice(0, 2));    // for now we're not checking the LANGUAGES array
+            } else {
+                lang = 'en';
+            }                   
+        }
+
+        // TODO: use contant values to make sure `list_of_qestions` and TRANSLATIONS are in sync.
+        var list_of_questions = [
+            {
+                'id': 'q1',
+                'value': 90.5,
+                'question': i18n.gettext('Fever above 37.8C/100F in armpit or forehead?'),
+                'image_url': 'images/fever.svg'
+            },
+            {'id': 'q2', 'value': 70.5, 'question': i18n.gettext('Dry cough?'), 'image_url': 'images/cough.svg'},
+            {
+                'id': 'q3',
+                'value': 53.5,
+                'question': i18n.gettext('Fatigue (feeling extra tired)?'),
+                'image_url': 'images/fatigue.svg'
+            },
+            {'id': 'q4', 'value': 40, 'question': i18n.gettext('No appetite?'), 'image_url': 'images/no_appetite.svg'},
+            {
+                'id': 'q5',
+                'value': 250,
+                'question': i18n.gettext('Breathing difficulty?'),
+                'image_url': 'images/difficulty_breathing.svg'
+            },
+            {
+                'id': 'q6',
+                'value': 29.5,
+                'question': i18n.gettext('Sputum (spitting or coughing lung mucus)?'),
+                'image_url': 'images/sputum.svg'
+            },
+            {
+                'id': 'q7',
+                'value': 27.5,
+                'question': i18n.gettext('Muscle or bone pain?'),
+                'image_url': 'images/body_pain.svg'
+            },
+            {'id': 'q8', 'value': 11, 'question': i18n.gettext('Sore throat?'), 'image_url': 'images/sore_throat.svg'},
+            {
+                'id': 'q9',
+                'value': 10,
+                'question': i18n.gettext('Headache or dizziness?'),
+                'image_url': 'images/headache.svg'
+            },
+            {'id': 'q10', 'value': 213, 'question': i18n.gettext('Loss of consciousness(fainting)?'), 'image_url': 'images/confusion.svg'},
+            {
+                'id': 'q11',
+                'value': 11,
+                'question': i18n.gettext('Chills (cold or shivering)?'),
+                'image_url': 'images/chills.svg'
+            },
+            {
+                'id': 'q12',
+                'value': 24,
+                'question': i18n.gettext('Nausea or vomiting or diarrhea?'),
+                'image_url': 'images/nausea.svg'
+            },
+            {
+                'id': 'q13',
+                'value': 51.9,
+                'question': i18n.gettext('Chronic disease?'),
+                'image_url': 'images/chronic.svg'
+            },
+            {
+                'id': 'q14',
+                'value': 215,
+                'question': i18n.gettext('Chest pain or chest pressure or irregular heartbeat?'),
+                'image_url': 'images/heart.svg'
+            },
+            {
+                'id': 'q15',
+                'value': 214,
+                'question': i18n.gettext('Bluish lips or face?'),
+                'image_url': 'images/blue.svg'
+            },
+            {
+                'id': 'q17',
+                'value': 15,
+                'question': i18n.gettext('Loss of smell or taste?'),
+                'image_url': 'images/no_smell.svg'
+            },
+            {
+                'id': 'q16',
+                'value': 51.9,
+                'question': i18n.gettext('Older than 50 or younger than 5?'),
+                'image_url': 'images/man_and_child.svg'
+            },
+        ];
+    </script>
+
+    <!-- Side Panel -->
+    <div data-role="panel" id="sidepanel" data-position="left" data-display="overlay"
+         style="background-color: #f9f9f9;">
+        <br>
+        <h2 class="slide-panel-header">COVID-19 Online Screening Tool</h2>
+        <img id="virus-img" src="images/covid19.jpg" alt="COVID-19 Virus" width="50%">
+        <h4 class="slide-panel-header">Assess your risk for COVID-19</h4>
+        <br>
+
+        <!--<a href="https://dnahealthmap.shinyapps.io/CovidScreener_v01/" target="_blank" class="ui-btn">Desktop
+            Version</a>-->
+
+        <div data-role="collapsible-set" style="margin: 0; border-radius: 0;" data-collapsed-icon="carat-r"
+             data-expanded-icon="carat-d">
+            <div data-role="collapsible" data-collapsed="true">
+                <h3>Languages</h3>
+                <div style="margin: 0; border-radius: 0;" class="controlgroup-vertical lang-button-group">
+                    <a href="#" onclick="refreshLangQuery('en');" class="ui-btn ui-corner-all ui-btn-icon-right ui-icon-en">English</a>
+                    <a href="#" onclick="refreshLangQuery('es');" class="ui-btn ui-corner-all ui-btn-icon-right ui-icon-es">Español</a>
+                    <a href="#" onclick="refreshLangQuery('fr');" class="ui-btn ui-corner-all ui-btn-icon-right ui-icon-fr">Français</a>
+                    <a href="#" onclick="refreshLangQuery('hu');" class="ui-btn ui-corner-all ui-btn-icon-right ui-icon-hu">Magyar</a>
+                    <a href="#" onclick="refreshLangQuery('pl');" class="ui-btn ui-corner-all ui-btn-icon-right ui-icon-pl">Polski</a>
+                    <a href="#" onclick="refreshLangQuery('kr');" class="ui-btn ui-corner-all ui-btn-icon-right ui-icon-kr">한국어</a>
+                    <a href="#" onclick="refreshLangQuery('de');" class="ui-btn ui-corner-all ui-btn-icon-right ui-icon-de">Deutsch</a>
+                    <a href="#" onclick="refreshLangQuery('vi');" class="ui-btn ui-corner-all ui-btn-icon-right ui-icon-vi">Tiếng Việt</a>
+                </div>
+            </div>
+        </div>
+
+        <a href="https://www.screencovid.org/" target="_blank" class="ui-btn">About This Tool</a>
+        <a href="https://findcovidtesting.com/" target="_blank" class="ui-btn">COVID-19 Test Locations</a>
+    </div>
+
+    <script>
+        // Style the selected language's respective button in the side-panel
+        $(".ui-icon-" + lang).addClass("active-lang-button");
+
+        function refreshLangQuery(lang) {
+            window.location.href = window.location.pathname + "?" + $.param({'lang': lang})
+        }
+    </script>
+
+    <!-- Toolbar -->
+    <div data-role="header" style="background-color: #3c8dbc; border: none;">
+        <a class="side-panel-btn vertical-center ui-btn-left ui-btn ui-btn-inline  ui-corner-all" href="#sidepanel">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 8 8">
+                <path id="menu-icon" d="M0 0v1h8v-1h-8zm0 2.97v1h8v-1h-8zm0 3v1h8v-1h-8z" transform="translate(0 1)"/>
+            </svg>
+        </a>
+        <h1 style="text-shadow: none; color: #fff; font-size: 20px; padding: .6em 0; font-weight: 300; margin: 0 10%;">
+            COVID-PreScreener</h1>
+    </div>
+
+
+    <main class="app">
+      <!-- Questionaire -->
+      <div id="container">
+          <div id="questions"></div>
+          <div class="results" id="results"></div>
+      </div>
+
+      <!-- Symptom Checklist -->
+      <div class="widget">
+          <div id="checklist" class="controlgroup-vertical">
+          </div>
+      </div>
+      </br>
+
+      <div id="totaldescr">
+          <p class="info lang-en">If you’re experiencing a life- or limb-threatening emergency, call 911 or the number for your
+              local emergency service. This tool is not a substitute for professional medical advice, diagnosis, or treatment. Always consult a
+              medical professional for serious symptoms or emergencies. </p>
+          <p class="info lang-es">Si tiene una emergencia que amenaza la vida o las extremidades, llame al 911 o al número
+              de
+              su
+              local emergencia Servicio.
+              Esta herramienta no sustituye el consejo, el diagnóstico o el tratamiento médico profesional. Siempre
+              consulte a
+              un médico
+              profesional para síntomas graves o emergencias. </p>
+          <p class="info lang-fr">Si vous vivez une urgence mettant en jeu votre vie ou vos membres, composez le 911 ou le
+              numéro
+              de votre
+              service d'urgence le plus proche.
+              Cet outil ne remplace pas les conseils, le diagnostic ou les traitement médicaux professionnels. Consultez
+              toujours un médecin
+              professionnel pour les symptômes graves ou les urgences.</p>
+          <p class="info lang-hu">Ez NEM egy hivatalos, hitelesített teszt, csak a tünetek felismerését segíti! Amennyiben
+              valójában tüneteket észlel magán jelentkezzen háziorvosánál!
+              </p>
+              <p class="info lang-pl">Jeśli zdarza się sytuacja zagrożenia życia lub kończyny, zadzwoń pod numer 911 lub zadzwoń pod lokalny numer alarmowy. To narzędzie nie zastępuje profesjonalnej porady medycznej, diagnozy ani leczenia. Zawsze skonsultuj się z lekarzem w przypadku poważnych objawów lub nagłych wypadków.</p>
+               <p class="info lang-kr">
+                 만약 생명이 위급한 증상을 느끼신다면 지금 바로 119에 연락하십시오. 이 온라인 테스트는 의사 선생님들의 의학적 권고, 진단, 또는 처방을 대신할 수 없습니다. 중증이나 위급한 상황에서는 항상 의사 선생님께 도움을 받으십시오.
+               </p>
+               <p class="info lang-de">
+              Haftungsausschluss. Wenn Sie einen lebens- oder gliedmaßen bedrohlichen Notfall haben, rufen Sie 911 oder die Nummer Ihres örtlichen Rettungsdienstes an. Dieses Tool ist kein Ersatz für professionelle medizinische Beratung, Diagnose oder Behandlung. Bei schwerwiegenden Symptomen oder Notfällen immer einen Arzt konsultieren.
+               </p>
+              <p class="info lang-vi">
+                Tuyên bố từ chối trách nhiệm y tế. Nếu bạn đang có những triệu chứng nguy hiểm đến tính mạng hay nguy hiểm đến tay chân, hãy gọi 911 hay số cấp cứu trong khu vực của bạn để được giúp đỡ gấp. Thông tin từ trang mạng này không phải để thay thế cho tư vấn y tế chuyên nghiệp, chẩn đoán bệnh hay chữa trị bệnh. Hãy luôn hỏi ý kiến bác sĩ khi có triệu chứng nghiêm trọng hay trong trường hợp khẩn cấp.
+            </p>
+      </div>
+      <div id="total" class="total">
+      </div>
+    </main>
+
+
+    <div id="footer" class="footer">
+        <p>
+          Algorithm created by Sajung Yun, Ph.D & Sijung Yun, Ph.D (Bioinformatics adjunct professors, Johns Hopkins University)
+        </p>
+
+        <p>
+          More info at <a href="https://www.screencovid.org">ScreenCovid.org</a>
+        </p>
+
+        <p>
+          Find testing locations at <a href="https://findcovidtesting.com/">FindCovidTesting.com</a>
+        </p>
+
+        <p>
+          <svg class="octicon octicon-mark-github" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true" alt="GitHub"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
+          <a href="https://github.com/tconley/screencovid.com/">
+            Contribute to make this app better.
+          </a>
+        </p>
+    </div>
+
+    <div id="test-area"></div>
+
+    <script>
+        function showResults() {
+            $('#results').css("display", "block");
+        }
+
+        function updateResults(totalscore) {
+            if (totalscore > 212) {
+                $("#results").text(i18n.gettext("Your score indicates that you should consult a doctor immediately."));
+            } else {
+                $("#results").text(i18n.gettext("Your score is below the threshold for COVID-19 pre-screening. However, if you have Difficulty Breathing, Chest Pain, Pressure, or Irregular Heartbeat, Bluish Lips, or Confusion, you should seek medical attention immediately."));
+            }
+
+            if ($("#results").css("display") == "block") {
+                $('#container').css("height", $("#results").css("height"));
+                $('#container').height("+=50");
+            }
+        }
+
+        /* Display new checkbox and format style */
+        displayCheckbox = function (h, ph) {
+            $("#" + h + "-label").css('display', 'block').css('border-bottom-width', '1px')
+                .css('border-bottom-left-radius', '5px').css('border-bottom-right-radius', '5px');
+            $("#" + ph + "-label").css('border-bottom-width', '0px')
+                .css('border-bottom-left-radius', '0px').css('border-bottom-right-radius', '0px');
+            return h;
+        };
+
+        $(document).ready(function () {
+            var prev_checkbox_id = "";
+            // We display the correct warning message.
+            $('.info').hide(); // We hide all info messages.
+            $('.info' + '.lang-' + lang).show(); // We display the one for the selected language.
+
+            // We load the questions from template + JSON.
+            var template = $('#covid19-template').html();
+            $.each(list_of_questions, function (index, value) {
+                value['yes'] = i18n.gettext('yes');
+                value['no'] = i18n.gettext('no');
+                var html = Mustache.to_html(template, value);
+                $('#questions').append(html);
+            });
+            $('#q1').css("display", "block"); // First question gets the focus.
+
+
+            $('.button-yes').on('click', function () {
+                $(this).attr('disabled', true);
+                $(this).parent().parent().parent().swiperight();
+            });
+
+            $('.button-no').on('click', function () {
+                $(this).attr('disabled', true);
+                $(this).parent().parent().parent().swipeleft();
+            });
+
+            var totalscore = 0;
+            //$("#total").text(totalscore.toFixed(1));
+
+
+            $(".buddy").one("swiperight", function () {
+                totalscore = totalscore + parseFloat($(this).attr('value'));
+
+                //$("#total").text(totalscore.toFixed(1));
+                $(this).addClass('rotate-left').delay(700).fadeOut(1);
+                $('.buddy').find('.status').remove();
+
+                $(this).append('<div class="status like">Yes!</div>');
+
+                /* Add item to checklist */
+                var checkbox_id = $(this).attr('id');
+                $("#" + checkbox_id + "-input").prop("checked", true).checkboxradio('refresh');
+                prev_checkbox_id = displayCheckbox(checkbox_id, prev_checkbox_id);
+
+                if ($(this).is(':last-child')) {
+                    //$('.buddy:nth-child(1)').removeClass ('rotate-left rotate-right').fadeIn(300);
+                    //alert('message here that we are done');
+                    //after survey is done additional messages should be displayed about next steps
+                    showResults();
+                    updateResults(totalscore);
+                } else {
+                    $(this).next().removeClass('rotate-left rotate-right').fadeIn(400);
+                }
+
+            });
+
+            $(".buddy").one("swipeleft", function () {
+                $(this).addClass('rotate-right').delay(700).fadeOut(1);
+                $('.buddy').find('.status').remove();
+                $(this).append('<div class="status dislike">No!</div>');
+
+                /* Add item to checklist */
+                var checkbox_id = $(this).attr('id');
+                prev_checkbox_id = displayCheckbox(checkbox_id, prev_checkbox_id);
+
+                if ($(this).is(':last-child')) {
+                    //$('.buddy:nth-child(1)').removeClass ('rotate-left rotate-right').fadeIn(300);
+                    //alert('message here that we are done');
+                    //after survey is done additional messages should be displayed about next steps
+
+                    showResults();
+                    updateResults(totalscore);
+                } else {
+                    $(this).next().removeClass('rotate-left rotate-right').fadeIn(400);
+                }
+
+            });
+
+
+            /* Generate symptom checklist */
+            list_of_questions.forEach(function (item) {
+                var input_id = item.id + "-input";
+                var label_id = item.id + "-label";
+                var list_item = '<label class="checklist-label" style="display: none;" id="' +
+                    label_id + '" for="' + input_id + '">' + item.question + '</label>' +
+                    '<input style="display: none;" type="checkbox" id="' + input_id + '" value="' + item.value + '">';
+                $("#checklist").append(list_item);
+                $("#" + input_id).on('change', function () {
+                    var symptom_value = item.value;
+                    totalscore += $("#" + label_id).hasClass("ui-checkbox-on") ? -symptom_value : symptom_value;
+                    //$("#total").text(totalscore.toFixed(1));
+                    updateResults(totalscore);
+                });
+            });
+
+            $(function () {
+                $(".controlgroup-vertical").controlgroup({
+                    "direction": "vertical"
+                });
+            });
+        });
+    </script>
+</div> <!-- page -->
+
+</body>
+</html>
